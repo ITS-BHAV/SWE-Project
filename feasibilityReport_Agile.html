@@ -1,0 +1,150 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sprint Burndown — Sample Sprint (14 days)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f6fafb;--card:#ffffff;--muted:#6b7280;--accent:#3b82f6;--accent2:#10b981}
+    *{box-sizing:border-box;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#eef7ff 0%,var(--bg) 100%);color:#0f172a}
+    .container{max-width:1100px;margin:36px auto;padding:28px}
+    .card{background:var(--card);border-radius:14px;padding:24px;box-shadow:0 10px 30px rgba(15,23,42,0.06)}
+    header{display:flex;gap:20px;align-items:center;justify-content:space-between;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:4px 0 0;color:var(--muted);font-size:14px}
+    .meta{display:flex;gap:12px;align-items:center}
+    .chip{background:#f1f8ff;color:#0b4da2;padding:6px 10px;border-radius:999px;font-weight:600;font-size:13px}.chart-wrap{display:grid;grid-template-columns:1fr 260px;gap:18px;align-items:start}
+canvas{background:linear-gradient(180deg,rgba(255,255,255,0.6),rgba(255,255,255,0.9));border-radius:10px;padding:12px}
+.side-panel{padding:14px;border-radius:10px;background:linear-gradient(180deg,#f8fafc,#ffffff);box-shadow:0 6px 16px rgba(15,23,42,0.03)}
+.side-panel h3{margin:0 0 10px;font-size:15px}
+.legend-item{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.swatch{width:16px;height:10px;border-radius:4px}
+.controls{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+button{border:0;padding:10px 12px;border-radius:8px;font-weight:600;cursor:pointer}
+.btn-download{background:linear-gradient(90deg,var(--accent),#2563eb);color:white}
+.btn-toggle{background:#f3f4f6;color:#0f172a}
+footer{margin-top:16px;color:var(--muted);font-size:13px}
+
+@media (max-width:920px){.chart-wrap{grid-template-columns:1fr;}.side-panel{order:2}}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <header>
+        <div>
+          <h1>Sprint Burndown — Sample Sprint <small style="color:var(--muted);font-weight:600">(14 days)</small></h1>
+          <p class="lead">Visualizing <strong>ideal</strong> vs <strong>actual</strong> story points remaining across the sprint.</p>
+        </div>
+        <div class="meta">
+          <div class="chip">Sprint: 14 days</div>
+        </div>
+      </header><div class="chart-wrap">
+    <div>
+      <canvas id="burndownChart" width="800" height="420"></canvas>
+      <footer>Tip: Click legend items to toggle lines. Use <strong>Download PNG</strong> to save this chart for your report.</footer>
+    </div>
+
+    <aside class="side-panel">
+      <h3>Legend & Controls</h3>
+      <div class="legend-item"><span class="swatch" style="background:linear-gradient(90deg,#8ab4ff,#3b82f6)"></span><div><strong>Ideal</strong><div style="color:var(--muted);font-size:13px">Planned steady progress</div></div></div>
+      <div class="legend-item"><span class="swatch" style="background:linear-gradient(90deg,#8ef3c4,#10b981)"></span><div><strong>Actual</strong><div style="color:var(--muted);font-size:13px">Real progress during sprint</div></div></div>
+
+      <div class="controls">
+        <button id="toggleFill" class="btn-toggle">Toggle Fill</button>
+        <button id="downloadBtn" class="btn-download">Download PNG</button>
+      </div>
+
+      <hr style="margin:12px 0;border:none;border-top:1px solid #eef2f7">
+      <div style="color:var(--muted);font-size:13px">
+        <strong>Data:</strong>
+        <ul style="padding-left:18px;margin:8px 0">
+          <li>Ideal: linear planned reduction from 40 → 0</li>
+          <li>Actual: realistic slower drop with mid-sprint variation</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</div>
+
+  </div>  <!-- Chart.js CDN -->  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <script>
+    // Data arrays (14 days)
+    const labels = ['Day 1','Day 2','Day 3','Day 4','Day 5','Day 6','Day 7','Day 8','Day 9','Day 10','Day 11','Day 12','Day 13','Day 14'];
+    const ideal = [40,37,34,31,28,25,22,18,15,12,9,6,3,0];
+    const actual = [40,38,36,35,33,30,27,25,20,16,12,9,4,0];
+
+    // Create gradient fills
+    const ctx = document.getElementById('burndownChart').getContext('2d');
+    const g1 = ctx.createLinearGradient(0,0,0,400);
+    g1.addColorStop(0,'rgba(59,130,246,0.18)');
+    g1.addColorStop(1,'rgba(59,130,246,0.03)');
+    const g2 = ctx.createLinearGradient(0,0,0,400);
+    g2.addColorStop(0,'rgba(16,185,129,0.18)');
+    g2.addColorStop(1,'rgba(16,185,129,0.03)');
+
+    const config = {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Ideal',
+            data: ideal,
+            borderColor: '#3b82f6',
+            backgroundColor: g1,
+            tension: 0.32,
+            pointRadius:4,
+            pointHoverRadius:6,
+            fill: true,
+            borderWidth:3
+          },
+          {
+            label: 'Actual',
+            data: actual,
+            borderColor: '#10b981',
+            backgroundColor: g2,
+            tension: 0.28,
+            pointRadius:4,
+            pointHoverRadius:6,
+            fill: true,
+            borderWidth:3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: {usePointStyle:true,boxWidth:10} },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          x: { grid: {display:false}, ticks: {color:'#111827'} },
+          y: { beginAtZero:true, max:42, ticks: {stepSize:5,color:'#111827'}, title: {display:true,text:'Story Points Remaining',color:'#374151'} }
+        }
+      }
+    };
+
+    const burndown = new Chart(ctx, config);
+
+    // Toggle fill
+    document.getElementById('toggleFill').addEventListener('click', () => {
+      burndown.data.datasets.forEach(ds => ds.fill = !ds.fill);
+      burndown.update();
+    });
+
+    // Download PNG
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = document.getElementById('burndownChart').toDataURL('image/png', 1);
+      a.download = 'sprint-burndown.png';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+  </script></body>
+</html>
